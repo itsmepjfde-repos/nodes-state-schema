@@ -1,0 +1,73 @@
+Defect Triage Agents – Requirements Overview
+Objective
+Develop a modular set of LangChain agents orchestrated via LangGraph to automate defect triage. Each agent must:
+
+Operate independently when invoked directly (standalone mode).
+
+Accept input from LangGraph orchestration and return updated state values.
+
+Follow best practices in LangChain (structured outputs, safe tool execution, environment variable usage for API keys).
+
+Integrate with Jira API for defect data retrieval and updates.
+
+Agents & Responsibilities
+Defect Classifier Agent
+
+Input: Jira defect ID (e.g., FS‑74).
+
+Task: Classify defect into feature/service category (e.g., Notification, Payment).
+
+Output: Category label.
+
+State: jira_id, feature.
+
+Defect Similarity Agent
+
+Input: Defect ID.
+
+Task: Identify top 3 similar defects using embeddings in chroma db + LLM recommendation.
+
+Output: Similar defect IDs + recommendation.
+
+State: jira_id, feature, identical_defect_id (optional).
+
+Defect Log Analyzer Agent
+
+Input: Feature, timestamp, defect ID.
+
+Task: Perform log analysis for root cause indicators.
+
+Output: Log analysis results.
+
+State: jira_id, feature, identical_defect_id, log_analysis.
+
+Defect Recommendation Agent
+
+Input: State values including log analysis and similarity.
+
+Task: Generate final recommendation (fix/workaround) with optional HIL approval.
+
+Output: Recommendation text.
+
+State: jira_id, feature, identical_defect_id, log_analysis, recommendation.
+
+Jira Update Agent
+
+Input: State values including recommendation.
+
+Task: Update Jira defect with recommendation and status.
+
+Output: Jira update confirmation.
+
+State: jira_id, feature, identical_defect_id, log_analysis, recommendation, jira_update_status.
+
+Integration Notes
+Environment Variables: Jira and LLM (Gemini) keys stored in .env.
+
+LangGraph Orchestration: Agents must expose input/output schemas compatible with LangGraph state passing.
+
+Standalone Mode: Each agent should accept command‑line input (defect ID) and produce output without LangGraph.
+
+Error Handling: Agents must handle missing/invalid Jira IDs gracefully.
+
+Extensibility: Future agents can be added by extending state schema.

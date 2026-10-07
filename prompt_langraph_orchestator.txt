@@ -1,0 +1,140 @@
+Prompt – LangGraph Orchestration for Defect Triage
+Generate a Python file named defect_triage_orchestration.py that defines the LangGraph orchestration for defect triage agents, with Streamlit integration for input/output and human‑in‑the‑loop approval.
+
+Requirements:
+State Definition
+
+Define a shared state schema with keys:
+
+jira_id
+
+feature_classification
+
+identical_defect_id
+
+log_analysis
+
+recommendation_json
+
+approval_status
+
+jira_update_status
+
+Ensure state updates are immutable and validated at each node.
+
+Graph Construction
+
+Nodes:
+
+Classifier Agent Node → runs defect classification.
+
+Conditional Edge:
+
+If feature_classification is not empty or valid → proceed to Log Analyzer Agent Node.
+
+Else → skip log analysis and go directly to Similarity Agent Node.
+
+Similarity Agent Node → always runs similarity search (mandatory).
+
+Recommendation Agent Node → aggregates outputs and generates final recommendation JSON.
+
+Manual Gate Agent Node → waits for human approval (Approve/Reject).
+
+If approval_status = "approved" → proceed to Jira Update Agent.
+
+If approval_status = "rejected" → end workflow immediately.
+
+Jira Update Agent Node → posts recommendation as Jira comment (only if approved).
+
+Edges:
+
+classifier → (conditional: log_analyzer OR similarity) → similarity → recommendation → manual_gate → (conditional: jira_update OR end).
+
+LangGraph Best Practices
+
+Each agent integrated as a LangChain node with explicit input/output schema.
+
+Use conditional edges for branching logic (log analyzer optional, similarity mandatory).
+
+Ensure state passing is explicit and validated at each node.
+
+Handle errors gracefully by updating state with "error" keys.
+
+Keep orchestration modular: each agent file imported and registered as a node.
+
+Streamlit Integration
+
+Input:
+
+Text box for initial jira_id.
+
+Output:
+
+Display intermediate outputs:
+
+Classification result
+
+Log analysis (if applicable)
+
+Similar defects
+
+Show recommendation JSON in a structured format.
+
+Provide Approve / Reject buttons for human‑in‑the‑loop step.
+
+If approved → trigger Jira Update Agent.
+
+If rejected → stop workflow and set jira_update_status = "rejected".
+
+Manual Gate Agent
+
+Implemented as a LangChain agent node.
+
+Pauses execution until user input is received via Streamlit.
+
+Updates approval_status in state:
+
+"approved" → continue to Jira Update Agent.
+
+"rejected" → terminate workflow immediately.
+
+CLI Support
+
+If run directly (__main__):
+
+Accept Jira ID from command line.
+
+Run graph orchestration sequentially.
+
+Print outputs step by step.
+
+Prompt for human approval before Jira update.
+
+If rejected → end workflow.
+
+Deliverable:
+A production‑ready orchestration file (defect_triage_orchestration.py) that:
+
+Defines state schema.
+
+Builds LangGraph with classifier, conditional edge (log analyzer optional), similarity (mandatory), recommendation, manual gate, and Jira update nodes.
+
+Integrates Streamlit for input/output and human approval.
+
+Ensures recommendation is only posted to Jira after explicit human approval.
+
+Ends workflow immediately if manual gate agent rejects.
+
+Follows LangGraph best practices for conditional edges, state passing, and modular agent integration.
+
+✅ Key Note:
+
+Similarity Agent is mandatory → always runs after classifier (regardless of log analyzer).
+
+Log Analyzer Agent is conditional → only runs if feature_classification is valid.
+
+Manual Gate Agent acts as a control node:
+
+Approved → continue to Jira Update Agent.
+
+Rejected → end workflow immediately.

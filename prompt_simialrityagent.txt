@@ -1,0 +1,59 @@
+Generate a Python file named `defect_similarity_agent.py` that defines a LangChain agent for defect similarity search and recommendation.
+
+### Requirements:
+
+1. **Input Modes**
+   - **Standalone CLI:** Accept a Jira defect ID from command line.
+   - **LangGraph:** Accept and update `state` variables when orchestrated.
+
+2. **Jira Integration**
+   - Implement Jira API calls as LangChain Tools.
+   - Fetch defect title and description using Jira REST API **only if not already present in `state`.**
+   - Keys and configs must be read from `.env`:
+     - `JIRA_BASE_URL`
+     - `JIRA_API_KEY`
+     - `JIRA_EMAIL`
+     - `GEMINI_API_KEY`
+     - `GEMINI_MODEL`
+
+3. **Similarity Search**
+   - Use embeddings (stored in **ChromaDB**) for semantic similarity.
+   - Embed defect title + description.
+   - Retrieve **top 3 most similar defects** from ChromaDB.
+   - Pass retrieved defects to LLM for contextual recommendation.
+
+4. **LangChain Best Practices**
+   - Use `PromptTemplate` for similarity + recommendation prompt.
+   - Use `ChatGoogleGenerativeAI` (Gemini wrapper) as the LLM.
+   - Use `StrOutputParser` for clean recommendation output.
+   - Wrap Jira API calls and ChromaDB queries in `Tool` abstractions.
+   - Chain composition: `PromptTemplate | LLM | StrOutputParser`.
+
+5. **Agent Functions**
+   - `build_similarity_chain()` → returns the similarity + recommendation chain.
+   - `fetch_jira_defect(jira_id)` → Jira API call tool.
+   - `query_chromadb(embedding)` → retrieves top 3 similar defects.
+   - `similarity_node(state)` → LangGraph node function:
+     - Reads `jira_id` from state.
+     - **If `state` already contains `title` and `description`, reuse them. Otherwise, call Jira API.**
+     - Embeds title + description.
+     - Queries ChromaDB for top 3 similar defects.
+     - Runs recommendation chain.
+     - Updates `state["identical_defect_id"]` and `state["recommendation"]`.
+
+6. **Error Handling**
+   - If Jira defect not found → return empty similarity list, recommendation = "none".
+   - If ChromaDB has no matches → recommendation = "none".
+   - Log errors gracefully.
+
+7. **CLI Support**
+   - If run directly (`__main__`), accept Jira ID from command line.
+   - Print top 3 similar defects + recommendation to stdout.
+
+### Deliverable:
+- A **modular, production‑ready agent file** (`defect_similarity_agent.py`) that can:
+  - Run standalone from CLI.
+  - Plug into LangGraph orchestration.
+  - Follow LangChain best practices for tools, chains, and agents.
+  - **Avoid redundant Jira API calls by checking state first.**
+

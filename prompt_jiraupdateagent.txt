@@ -1,0 +1,89 @@
+Generate a Python file named jira_update_agent.py that defines a LangChain agent for inserting Jira defect recommendations as comments.
+
+Requirements:
+Input Modes
+
+Standalone CLI:
+
+Accept Jira defect ID and recommendation string from command line.
+
+If recommendation is empty or null → no Jira update should occur.
+
+LangGraph: Accept and update state variables when orchestrated.
+
+Jira Integration
+
+Implement a single Jira API call as a LangChain Tool.
+
+The tool must:
+
+Add the recommendation as a separate Jira comment.
+
+Do not update any other fields (feature, identical defect ID, log analysis, etc.).
+
+Keys and configs must be read from .env:
+
+JIRA_BASE_URL
+
+JIRA_API_KEY
+
+JIRA_EMAIL
+
+LangChain Best Practices
+
+Wrap Jira comment API call in a Tool abstraction.
+
+No LLM required for comment insertion.
+
+Ensure structured input/output schema for LangGraph compatibility.
+
+Chain composition: Tool | StrOutputParser.
+
+Agent Functions
+
+add_jira_comment(jira_id, recommendation) → Jira API tool call to insert recommendation as a comment.
+
+jira_update_node(state) → LangGraph node function:
+
+Reads jira_id and recommendation from state.
+
+If recommendation is null or empty → skip Jira call, set jira_update_status = "no update".
+
+Otherwise, call add_jira_comment.
+
+Updates state["jira_update_status"].
+
+Error Handling
+
+If Jira comment addition fails → jira_update_status = "failed".
+
+If Jira ID invalid → jira_update_status = "invalid id".
+
+If recommendation is null → jira_update_status = "no update".
+
+Log errors gracefully.
+
+CLI Support
+
+If run directly (__main__):
+
+Accept defect ID and recommendation string as required arguments.
+
+If recommendation string is empty → skip Jira update, print "no update".
+
+Print Jira update status to stdout.
+
+Deliverable:
+A modular, production‑ready agent file (jira_update_agent.py) that can:
+
+Run standalone from CLI (with defect ID + recommendation string).
+
+Plug into LangGraph orchestration.
+
+Follow LangChain best practices for tools and agents.
+
+Perform Jira comment insertion in one API call only.
+
+Skip Jira update entirely if recommendation is null or not available.
+
+Return structured update status in state.

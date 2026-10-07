@@ -1,0 +1,97 @@
+Generate a Python file named manual_gate_agent.py that defines a LangChain agent for human approval in defect triage orchestration.
+
+Requirements:
+Input Modes
+
+Standalone CLI:
+
+Accept Jira defect ID and recommendation JSON from command line.
+
+Prompt user for approval (y/n).
+
+If approved → continue workflow.
+
+If rejected → stop workflow.
+
+LangGraph: Accept and update state variables when orchestrated.
+
+State Inputs
+
+Agent will receive:
+
+jira_id
+
+recommendation_json (from Recommendation Agent)
+
+Output Behavior
+
+If approved → set state["approval_status"] = "approved".
+
+If rejected → set state["approval_status"] = "rejected".
+
+If no response → set state["approval_status"] = "pending" and halt execution until user input is provided.
+
+LangChain Best Practices
+
+Implement approval logic as a LangChain Tool that queries human input.
+
+No LLM required.
+
+Ensure structured input/output schema for LangGraph compatibility.
+
+Chain composition: Tool | StrOutputParser.
+
+Agent Functions
+
+manual_gate_tool(jira_id, recommendation_json) → prompts human for approval.
+
+manual_gate_node(state) → LangGraph node function:
+
+Reads jira_id and recommendation_json from state.
+
+Displays recommendation JSON to user (via Streamlit or CLI).
+
+Waits for human approval.
+
+Updates state["approval_status"].
+
+Error Handling
+
+If recommendation JSON is missing → approval_status = "no recommendation".
+
+If user input invalid → re‑prompt until valid (y/n).
+
+Log errors gracefully.
+
+Streamlit Integration
+
+Display recommendation JSON in a structured format.
+
+Provide Approve / Reject buttons.
+
+On approval → update state and continue to Jira Update Agent.
+
+On rejection → stop workflow.
+
+CLI Support
+
+If run directly (__main__):
+
+Accept Jira ID and recommendation JSON file/string.
+
+Prompt user for approval (y/n).
+
+Print approval status to stdout.
+
+Deliverable:
+A modular, production‑ready agent file (manual_gate_agent.py) that can:
+
+Run standalone from CLI.
+
+Plug into LangGraph orchestration.
+
+Follow LangChain best practices for tools and agents.
+
+Act as a human‑in‑the‑loop gate before Jira update.
+
+Ensure workflow only continues if recommendation is explicitly approved.

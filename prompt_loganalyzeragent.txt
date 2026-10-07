@@ -1,0 +1,49 @@
+Generate a Python file named `defect_log_analyzer_agent.py` that defines a LangChain agent for defect log analysis.
+
+### Requirements:
+
+1. **Input Modes**
+   - **Standalone CLI:** Accept Jira defect ID and optional timestamp from command line.
+   - **LangGraph:** Accept and update `state` variables when orchestrated.
+
+2. **Log Analysis Integration**
+   - Implement Splunk mock API calls as LangChain Tools.
+   - API endpoint:
+     - If `feature` is available → `https://ishatrainingsolutions-itsmefde-splunk-mock.vercel.app/api/splunk_mock/<feature>`
+     - If `feature` is not available → `https://ishatrainingsolutions-itsmefde-splunk-mock.vercel.app/api/splunk_mock/`
+   - Tool must accept `feature`, `timestamp` (optional), and `defect_id` as inputs.
+   - Return structured log analysis results.
+
+3. **LangChain Best Practices**
+   - Wrap Splunk API call in a `Tool` abstraction.
+   - Use `PromptTemplate` for log analysis summarization.
+   - Use `ChatGoogleGenerativeAI` (Gemini wrapper) as the LLM.
+   - Use `StrOutputParser` for clean output.
+   - Chain composition: `Tool | PromptTemplate | LLM | StrOutputParser`.
+   - The generated `log_analysis` output must be no more than 50 words.
+
+4. **Agent Functions**
+   - `build_log_analysis_chain()` → returns the log analysis chain.
+   - `fetch_logs(feature, timestamp, defect_id)` → Splunk mock API tool.
+   - `log_analyzer_node(state)` → LangGraph node function:
+     - Reads `jira_id`, `feature`, and optional `timestamp` from state.
+     - Calls Splunk mock API tool.
+     - Runs log analysis chain.
+     - Updates `state["log_analysis"]`.
+     - Enforces a maximum length of 50 words for `state["log_analysis"]`.
+
+5. **Error Handling**
+   - If API call fails → `log_analysis = "none"`.
+   - If feature not provided → call base endpoint (no feature).
+   - Log errors gracefully.
+
+6. **CLI Support**
+   - If run directly (`__main__`), accept Jira ID and optional timestamp from command line.
+   - Print log analysis results to stdout.
+
+### Deliverable:
+- A **modular, production‑ready agent file** (`defect_log_analyzer_agent.py`) that can:
+  - Run standalone from CLI.
+  - Plug into LangGraph orchestration.
+  - Follow LangChain best practices for tools, chains, and agents.
+  - Perform log analysis via Splunk mock API tool calls.

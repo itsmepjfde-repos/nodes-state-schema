@@ -1,0 +1,62 @@
+
+
+# Prompt – Defect Recommendation Agent
+
+Generate a Python file named `defect_recommendation_agent.py` that defines a LangChain agent for producing the final defect triage recommendation.
+
+### Requirements:
+
+1. **Input Modes**
+   - **Standalone CLI:**  
+     - Accept Jira defect ID from command line.  
+     - Accept optional JSON input containing outputs from previous agents.  
+   - **LangGraph:** Accept and update `state` variables when orchestrated.
+
+2. **State Inputs**
+   - Agent will receive all outputs from previous agents in `state`:
+     - `feature_classification`
+     - `identical_defect_id` (optional)
+     - `log_analysis`
+     - Any additional metadata (e.g., defect title/description).
+
+3. **Output Format**
+   - Output must be **clear, precise, and structured JSON**:
+     ```json
+     {
+       "feature_classification": "<string>",
+       "similar_defect_id_and_root_cause": "<string>",
+       "log_analysis": "<string>",   // summarized in <= 25 words
+       "final_recommendation": "<string>" // summarized in <= 25 words
+     }
+     ```
+   - Both `log_analysis` and `final_recommendation` must be **concise summaries (20–25 words max)**.
+
+4. **LangChain Best Practices**
+   - Use `PromptTemplate` to instruct the LLM to generate crisp JSON output.
+   - Use `ChatGoogleGenerativeAI` (Gemini wrapper) as the LLM.
+   - Use `JsonOutputParser` (or `StrOutputParser` with JSON validation) to enforce structured output.
+   - Chain composition: `PromptTemplate | LLM | JsonOutputParser`.
+
+5. **Agent Functions**
+   - `build_recommendation_chain()` → returns the recommendation chain.
+   - `recommendation_node(state)` → LangGraph node function:
+     - Reads all required inputs from `state`.
+     - Runs recommendation chain.
+     - Updates `state["recommendation_json"]` with final structured output.
+
+6. **Error Handling**
+   - If required inputs are missing → output JSON with `"final_recommendation": "insufficient data"`.
+   - If LLM fails → fallback to `"final_recommendation": "unable to generate recommendation"`.
+   - Log errors gracefully.
+
+7. **CLI Support**
+   - If run directly (`__main__`):
+     - Accept Jira ID and optional JSON input file containing prior agent outputs.
+     - Print final recommendation JSON to stdout.
+
+### Deliverable:
+- A **modular, production‑ready agent file** (`defect_recommendation_agent.py`) that can:
+  - Run standalone from CLI.
+  - Plug into LangGraph orchestration.
+  - Follow LangChain best practices for tools, chains, and agents.
+  - Produce crisp, structured JSON output with concise summaries.

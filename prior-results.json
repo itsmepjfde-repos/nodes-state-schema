@@ -1,0 +1,27 @@
+{
+  "jira_id": "FS-74",
+  "feature": "notification",
+  "feature_classification": "notification",
+  "classification": "notification",
+  "defect_title": "Order email was not sent out",
+  "description": "After purchasing is completed, the order confirmation email is not sent.",
+  "identical_defect_id": "FS-6",
+  "similar_defects": [
+    {
+      "jira_id": "FS-6",
+      "title": "Order confirmation email not sent",
+      "description": "Customers complete a purchase but do not receive confirmation emails.",
+      "root_cause": "Misconfigured mail server credentials",
+      "distance": 0.16
+    },
+    {
+      "jira_id": "FS-19",
+      "title": "Cart abandonment emails sent to converted users",
+      "description": "Customers receive an abandoned-cart email after completing a purchase.",
+      "root_cause": "Checkout completion did not update the cart state in the cache.",
+      "distance": 0.42
+    }
+  ],
+  "log_analysis": "Notification logs show mail delivery timeouts after checkout; inspect SMTP credentials, provider connectivity, and retry handling.",
+  "timestamp": "2026-10-06T12:00:00Z"
+}
